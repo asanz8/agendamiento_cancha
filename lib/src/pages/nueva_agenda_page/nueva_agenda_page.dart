@@ -1,11 +1,18 @@
+import 'package:agendamiento_cancha/src/remote/weather_api.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 import 'package:agendamiento_cancha/src/models/lista_agenda.dart';
 import 'package:agendamiento_cancha/src/db/data/agenda_data.dart';
 import 'package:agendamiento_cancha/src/common/util.dart';
+import 'package:agendamiento_cancha/messages/NuevaAgendaPageMsg.i18n.dart';
+import 'package:agendamiento_cancha/messages/CommonMsg.i18n.dart';
+import 'package:agendamiento_cancha/src/pages/nueva_agenda_page/boton_cancha.dart';
+import 'package:agendamiento_cancha/src/pages/nueva_agenda_page/pronostico_tag.dart';
+
+final nuevaAgendaPageMsg = NuevaAgendaPageMsg();
+final commonMsg = CommonMsg();
 
 class NuevaAgendaPage extends StatefulWidget {
   @override
@@ -16,8 +23,7 @@ class _NuevaAgendaPageState extends State {
   String canchaSelected = '';
   int fecha = -1;
   String usuario = '';
-  double probLluvia = -1.0;
-  String weatherIcon = '';
+  double probLluvia = -2.0;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -27,22 +33,35 @@ class _NuevaAgendaPageState extends State {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nueva agenda'),
+        title: Text(nuevaAgendaPageMsg.appbar_title),
       ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Padding(
+                  padding: EdgeInsets.all(30.0),
+                  child: Text(nuevaAgendaPageMsg.complete_form,
+                    style: TextStyle(color: Theme.of(context).accentColor, fontWeight: FontWeight.bold, fontSize: 14),
+                  )
+              ),
               _crearTextFieldUsuario(),
               _crearDatePicker(),
+              PronosticoTag(probLluvia: probLluvia),
               _crearRowCanchas(),
-              _crearPronostico(),
-              Padding(
-                padding: EdgeInsets.all(20.0),
-                child: ElevatedButton(
-                    onPressed: () => _crearAgenda(),
-                    child: Text('Crear agenda')
+              Container(
+                margin: EdgeInsets.only(top: 100),
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          primary: Theme.of(context).primaryColor,
+                          padding: EdgeInsets.only(right: 90, left: 90, top: 18, bottom: 18)
+                      ),
+                      onPressed: () => _crearAgenda(),
+                      child: Text(nuevaAgendaPageMsg.create_agenda.toUpperCase())
+                  ),
                 ),
               )
             ],
@@ -71,34 +90,44 @@ class _NuevaAgendaPageState extends State {
 
           listaAgenda.add(newAgenda);
           ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Agenda creada')));
+              .showSnackBar(SnackBar(content: Text(nuevaAgendaPageMsg.success_create_agenda)));
           Navigator.pop(context);
         } // if disponible
         else {
           ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Cancha llena, seleccione otra cancha o fecha')));
+              .showSnackBar(SnackBar(content: Text(nuevaAgendaPageMsg.field_full)));
         }
       } // if canchaSelected.isNotEmpty
       else {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Seleccione una cancha')));
+            .showSnackBar(SnackBar(content: Text(nuevaAgendaPageMsg.select_field)));
       }
     }
   }
 
   Widget _crearTextFieldUsuario() {
     return Padding(
-      padding: EdgeInsets.all(10.0),
+      padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
       child: TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Por favor introduzca un nombre';
+            return nuevaAgendaPageMsg.text_input_user_invalid;
           }
           return null;
         },
+        style: TextStyle(color: Theme.of(context).accentColor),
         decoration: InputDecoration(
-            hintText: '¿Quién agenda?',
-            suffixIcon: Icon(Icons.person)
+          hintText: nuevaAgendaPageMsg.text_input_user_hint,
+          hintStyle: TextStyle(color: Theme.of(context).accentColor),
+          suffixIcon: Icon(Icons.person, color: Theme.of(context).accentColor),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Theme.of(context).accentColor, width: 2),
+            borderRadius: BorderRadius.circular(0)
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Theme.of(context).accentColor, width: 1),
+            borderRadius: BorderRadius.circular(0)
+          )
         ),
         onChanged: (text) {
           setState(() => usuario = text);
@@ -109,19 +138,25 @@ class _NuevaAgendaPageState extends State {
 
   Widget _crearDatePicker() {
     return Padding(
-      padding: EdgeInsets.all(10.0),
+      padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
       child: TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Por favor introduzca una fecha';
+            return nuevaAgendaPageMsg.date_picker_invalid;
           }
           return null;
         },
+        style: TextStyle(color: Theme.of(context).accentColor),
         enableInteractiveSelection: false,
         controller: datePickerController,
         decoration: InputDecoration(
-            hintText: '¿Cuándo?',
-            suffixIcon: Icon(Icons.calendar_today)
+          hintText: nuevaAgendaPageMsg.date_picker_hint,
+          hintStyle: TextStyle(color: Theme.of(context).accentColor),
+          suffixIcon: Icon(Icons.calendar_today, color: Theme.of(context).accentColor),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Theme.of(context).accentColor, width: 1),
+            borderRadius: BorderRadius.circular(0)
+          )
         ),
         onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
@@ -135,7 +170,7 @@ class _NuevaAgendaPageState extends State {
 
     DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: fecha == -1 ? DateTime.now() : DateTime.fromMillisecondsSinceEpoch(fecha),
         firstDate: DateTime.now(),
         lastDate: DateTime(DateTime.now().year + 1)
     );
@@ -151,7 +186,7 @@ class _NuevaAgendaPageState extends State {
       else {
         probLluvia = -1.0;
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('El pronóstico esta disponible solo en los próximos 7 días')));
+            .showSnackBar(SnackBar(content: Text(nuevaAgendaPageMsg.forecast_no_available)));
         setState(() {});
       }
     }
@@ -162,13 +197,22 @@ class _NuevaAgendaPageState extends State {
       padding: EdgeInsets.all(10.0),
       child: Column(
         children: [
-          Text('Seleccione una cancha'),
+          Padding(
+            padding: EdgeInsets.all(30.0),
+            child: Text(nuevaAgendaPageMsg.select_field,
+              style: TextStyle(
+                color: Theme.of(context).accentColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 16
+              ),
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _crearBotonCancha('A'),
-              _crearBotonCancha('B'),
-              _crearBotonCancha('C'),
+              BotonCancha(cancha: 'A', onPress: _onSelectCancha, canchaSelected: canchaSelected),
+              BotonCancha(cancha: 'B', onPress: _onSelectCancha, canchaSelected: canchaSelected),
+              BotonCancha(cancha: 'C', onPress: _onSelectCancha, canchaSelected: canchaSelected),
             ],
           )
         ],
@@ -176,65 +220,28 @@ class _NuevaAgendaPageState extends State {
     );
   }
 
-  Widget _crearBotonCancha(String cancha) {
-    final selected = cancha == canchaSelected;
-
-    return TextButton(
-        onPressed: () => setState(() => canchaSelected = cancha),
-        child: Text(cancha),
-        style: TextButton.styleFrom(
-            primary: selected ? Colors.white : Colors.blue,
-            backgroundColor: selected ? Colors.blue : Colors.transparent,
-            textStyle: TextStyle(fontSize: 24.0)
-        )
-    );
-  }
-
-  Widget _crearPronostico() {
-    if(probLluvia.isNegative){
-      return SizedBox();
-    }
-    else {
-      return Padding(
-        padding: EdgeInsets.all(10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Column(
-              children: [
-                Text('Prob. Lluvia:', style: TextStyle(fontSize: 18.0)),
-                Text('${(probLluvia*100).ceil()}%', style: TextStyle(fontSize: 20.0))
-              ],
-            ),
-            FadeInImage.memoryNetwork(
-              placeholder: kTransparentImage,
-              image: 'https://openweathermap.org/img/w/$weatherIcon.png',
-            ),
-          ],
-        )
-      );
-    }
+  void _onSelectCancha(String cancha) {
+    setState(() => canchaSelected = cancha);
   }
 
   _checkClima() async {
     try {
-      final response = await Dio().get('https://api.openweathermap.org/data/2.5/onecall?lat=40.714&lon=-74.006&exclude=minutely,hourly,alerts&appid=6088a3cb558b2566bd71c87c982af244');
+      final Response<dynamic> response = await WeatherApi.getWeather();
       final List pronostico = response.data['daily'];
 
       for(int i=0; i<=pronostico.length-1; i++){
         final fechaPronostico = util.formatDateMilliStart(DateTime.fromMillisecondsSinceEpoch(pronostico[i]['dt'] * 1000));
         if(fecha == fechaPronostico){
           probLluvia = pronostico[i]['pop'] is int ? pronostico[i]['pop'].toDouble() : pronostico[i]['pop'];
-          weatherIcon = pronostico[i]['weather'][0]['icon'];
           break;
         }
       }
       setState(() {});
     }
     catch(e) {
-      probLluvia = -1.0;
+      probLluvia = -2.0;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Ha ocurrido un problema al consultar el pronóstico')));
+          .showSnackBar(SnackBar(content: Text(commonMsg.error_weather_api)));
       setState(() {});
     }
   }

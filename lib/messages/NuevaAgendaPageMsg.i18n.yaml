@@ -1,0 +1,17 @@
+appbar_title: Nueva agenda
+
+create_agenda: Crear agenda
+
+success_create_agenda: Agenda creada
+field_full: Cancha llena, seleccione otra cancha o fecha
+select_field: Seleccione una cancha
+
+text_input_user_invalid: Por favor introduzca un nombre
+text_input_user_hint: ¿Quién agenda?
+
+date_picker_invalid: Por favor introduzca una fecha
+date_picker_hint: ¿Cuándo?
+
+forecast_no_available: El pronóstico esta disponible solo en los próximos 7 días
+
+complete_form: Completar los datos

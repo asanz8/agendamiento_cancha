@@ -1,0 +1,27 @@
+add: Agregar
+delete: Eliminar
+cancel: Cancelar
+
+field: Cancha
+no_available: No disponible
+
+prob_lluvia: Probabilidad de Lluvia
+
+month1: Enero
+month2: Febrero
+month3: Marzo
+month4: Abril
+month5: Mayo
+month6: Junio
+month7: Julio
+month8: Agosto
+month9: Septiembre
+month10: Octubre
+month11: Noviembre
+month12: Diciembre
+
+dia_soleado: Soleado
+dia_nublado: Nublado
+dia_lluvioso: Lluvioso
+
+error_weather_api: Ha ocurrido un problema al consultar el pronóstico

@@ -54,40 +54,56 @@ void main() async {
 
   group('agenda_model', () {
 
-    test('agregar, eliminar y validar cancha', () async {
-
-      // tabla vacia al inicializar
+    test('tabla vacia al inicializar', () async {
       expect((await agendaModel.all()).isEmpty, true);
+    });
 
-      // insertar un elemento
+    test('insertar 1 elemento', () async {
       await agendaModel.insert(agenda1);
       expect((await agendaModel.all()).length, 1);
+    });
 
-      // insertar dos elementos
+    test('insertar 3 elementos', () async {
+      await agendaModel.insert(agenda1);
       await agendaModel.insert(agenda2);
       await agendaModel.insert(agenda3);
       expect((await agendaModel.all()).length, 3);
+    });
 
-      // validar que cancha "A" ya posee 3 agendas para el mismo dia
+    test('validar que cancha "A" ya posee 3 agendas para el mismo dia', () async {
+      await agendaModel.insert(agenda1);
+      await agendaModel.insert(agenda2);
+      await agendaModel.insert(agenda3);
       expect(await agendaModel.checkDisponibilidad(agenda4.fecha, agenda4.cancha), 3);
+    });
 
-      // eliminar un elemento y agregar otro
+    test('eliminar un elemento y agregar otro', () async {
+      await agendaModel.insert(agenda1);
+      await agendaModel.insert(agenda2);
+      await agendaModel.insert(agenda3);
+
       await agendaModel.delete(agenda3);
       await agendaModel.insert(agenda4);
       expect((await agendaModel.all()).length, 3);
     });
 
-    test('orden de consulta para lista', () async {
+    test('fecha de primer elemento menor o igual a fecha del segundo', () async {
       await agendaModel.insert(agenda5);
       await agendaModel.insert(agenda6);
       await agendaModel.insert(agenda7);
 
       final maps = await agendaModel.select();
 
-      // fecha de primer elemento menor o igual a fecha del segundo
       expect(maps[0].fecha, lessThanOrEqualTo(maps[1].fecha));
+    });
 
-      // fecha del segundo elemento mayor al tercero
+    test('fecha del segundo elemento mayor al tercero', () async {
+      await agendaModel.insert(agenda5);
+      await agendaModel.insert(agenda6);
+      await agendaModel.insert(agenda7);
+
+      final maps = await agendaModel.select();
+
       expect(maps[1].fecha, greaterThan(maps[2].fecha));
     });
 

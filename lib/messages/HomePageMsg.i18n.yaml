@@ -1,0 +1,11 @@
+appbar_title: Agendamiento
+new_agenda_tooltip: Nueva agenda
+
+delete_agenda: Eliminar agenda
+delete_agenda_alert_title: ¿Desea eliminar la siguiente agenda?
+success_delete_agenda: Agenda eliminada
+
+empty_list_title: Todavía no tienes canchas agendadadas
+empty_list_subtitle: Una vez hayas agendado una cancha y una fecha podrás ver la reserva aquí.
+
+list_agenda_header: Fechas agendadas

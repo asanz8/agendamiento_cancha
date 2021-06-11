@@ -24,6 +24,15 @@ class App extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Agendamiento",
+      theme: ThemeData(
+        primaryColor: Color.fromRGBO(25, 69, 191, 1.0),
+        accentColor: Color.fromRGBO(38, 153, 251, 1),
+        errorColor: Color.fromRGBO(255, 97, 96, 1),
+        buttonTheme: ButtonThemeData(
+          buttonColor: Color.fromRGBO(25, 69, 191, 1.0),
+        ),
+        scaffoldBackgroundColor: Colors.white,
+      ),
       initialRoute: '/',
       routes: routes,
     );
